@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* Full-page immersive clinical background */
+    body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.85)), 
+                    url('https://images.unsplash.com/photo-1538108149393-cebb47ac7924?q=80&w=2000') center/cover no-repeat fixed;
+        font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    .auth-wrapper {
+        min-height: calc(100vh - 56px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .auth-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        width: 100%;
+        max-width: 420px;
+        padding: 3rem 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, #64FFDA 0%, #0F172A 100%); /* Reversed gradient for visual distinction */
+    }
+
+    .logo-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    .logo-box {
+        width: 45px;
+        height: 45px;
+        background-color: #0F172A;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .logo-cross {
+        color: #64FFDA;
+        font-size: 1.5rem;
+    }
+
+    .auth-title {
+        color: #0F172A;
+        font-weight: 800;
+        text-align: center;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.25rem;
+    }
+    .auth-subtitle {
+        color: #64748B;
+        text-align: center;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-control {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        background: #FFFFFF;
+        border-color: #64FFDA;
+        box-shadow: 0 0 0 4px rgba(100, 255, 218, 0.1);
+    }
+    .input-group-text {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        color: #94A3B8;
+        border-right: none;
+    }
+    .form-control.border-start-0 {
+        border-left: none;
+    }
+
+    .btn-auth {
+        background: #0F172A;
+        color: #FFFFFF;
+        font-weight: 600;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(15, 23, 42, 0.2);
+    }
+    .btn-auth:hover {
+        background: #1E293B;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 12px rgba(15, 23, 42, 0.3);
+        color: #64FFDA;
+    }
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        
+        <div class="logo-container">
+            <div class="logo-box">
+                <i class="fas fa-file-medical logo-cross"></i>
+            </div>
+        </div>
+        
+        <h3 class="auth-title">Patient Onboarding</h3>
+        <p class="auth-subtitle">Establish your secure MRN credentials</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} py-2 px-3 small fw-bold text-center border-0 shadow-sm mb-4">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>{{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted mb-1">Create Username (MRN)</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                    <input type="text" class="form-control border-start-0" name="username" placeholder="e.g. PT-802" required>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-muted mb-1">Create Secure Passcode</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input type="password" class="form-control border-start-0" name="password" placeholder="••••••••" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-auth w-100 mb-4"><i class="fas fa-user-plus me-2"></i> Register Patient Profile</button>
+            
+            <div class="text-center mt-3 pt-3 border-top">
+                <p class="text-muted small mb-0">Already established in the system?</p>
+                <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold" style="color: #0F172A;"><i class="fas fa-arrow-left me-1 small"></i> Return to Authentication</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

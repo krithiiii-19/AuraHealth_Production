@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .admin-container { display: flex; min-height: 100vh; background: #F8FAFC; }
+    .sidebar { width: 260px; flex-shrink: 0; background: #0F172A; display: flex; flex-direction: column; }
+    .main-content { flex-grow: 1; padding: 2rem; overflow-x: hidden; }
+    
+    /* FIX: Lowered opacity from 0.85 to 0.30/0.50 and added text-shadow for readability */
+    .workspace-header { 
+        background: linear-gradient(rgba(15,23,42,0.30), rgba(15,23,42,0.50)), url('https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000') center/cover; 
+        border-radius: 8px; 
+        color: white; 
+        padding: 2.5rem 2rem; 
+        margin-bottom: 2rem; 
+        text-shadow: 0 2px 4px rgba(0,0,0,0.6); 
+    }
+    
+    .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); padding: 1.5rem; margin-bottom: 1.5rem; }
+
+    /* Perfectly aligns the footer with the main content, preventing sidebar overlap */
+    footer {
+        margin-left: 260px !important;
+        width: calc(100% - 260px) !important;
+    }
+</style>
+
+<div class="admin-container">
+    <div class="sidebar">
+        <div class="text-center py-5">
+            <div class="text-warning mb-3"><i class="fas fa-user-shield fa-3x"></i></div>
+            <h5 class="text-white fw-bold">System Admin</h5>
+            <small class="text-warning">Master Access</small>
+        </div>
+        <div class="p-3 mt-auto mb-3">
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger w-100 fw-bold py-2"><i class="fas fa-lock me-2"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="workspace-header">
+            <h2 class="fw-bold mb-2">Aura Health Central Command</h2>
+            <p class="text-white-75 mb-0 fs-5">Executive System Oversight & Personnel Management</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card p-4 mb-3 border-0 shadow-sm rounded-3">
+                    <h6 class="fw-bold text-primary mb-3 border-bottom pb-2"><i class="fas fa-user-plus me-2"></i> Deploy Physician</h6>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <input type="text" name="username" class="form-control" placeholder="ID (e.g. dr_smith)" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <select name="specialty" class="form-select"><option>Pulmonologist</option><option>Radiologist</option></select>
+                        </div>
+                        <button type="submit" name="add_doc" class="btn btn-primary fw-bold w-100 py-2">Authorize Deployment</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="table-container">
+                    <h6 class="fw-bold mb-3 border-bottom pb-2"><i class="fas fa-users text-primary me-2"></i> Active Physician Roster</h6>
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light"><tr><th>Name</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody>
+                            {% for doc in doctors %}
+                            <tr>
+                                <td class="fw-bold">{{ doc.name }}</td>
+                                <td>
+                                    <form method="POST">
+                                        <input type="hidden" name="doc_id" value="{{ doc.user_id }}">
+                                        <select name="new_status" class="form-select form-select-sm border-0 fw-bold {{ 'text-success' if doc.status == 'On Duty' else 'text-warning' if doc.status == 'On Call' else 'text-muted' }}" onchange="this.form.submit()">
+                                            <option value="On Duty" {% if doc.status == 'On Duty' %}selected{% endif %}>On Duty</option>
+                                            <option value="On Call" {% if doc.status == 'On Call' %}selected{% endif %}>On Call</option>
+                                            <option value="Off Duty" {% if doc.status == 'Off Duty' %}selected{% endif %}>Off Duty</option>
+                                        </select>
+                                        <input type="hidden" name="change_status" value="1">
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="POST"><input type="hidden" name="doc_id" value="{{ doc.user_id }}"><button type="submit" name="delete_doc" class="btn btn-sm btn-outline-danger fw-bold">Revoke</button></form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container border-start border-4 border-danger">
+                    <h6 class="fw-bold text-danger mb-3 border-bottom pb-2"><i class="fas fa-calendar-times me-2"></i> Network Leave Synchronizer</h6>
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light"><tr><th>Physician</th><th>Leave Date</th><th>Shift</th></tr></thead>
+                        <tbody>
+                            {% for l in leaves %}
+                            <tr><td class="fw-bold">{{ l.doctor_name }}</td><td>{{ l.leave_date }}</td><td><span class="badge bg-danger">{{ l.shift }}</span></td></tr>
+                            {% else %}
+                            <tr><td colspan="3" class="text-center text-muted fst-italic py-3">No upcoming leave requests registered in the network.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

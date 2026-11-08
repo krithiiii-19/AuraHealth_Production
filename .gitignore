@@ -1,0 +1,15 @@
+# Python environment
+__pycache__/
+venv/
+env/
+
+# Database (Keeps test patient data private)
+hospital.db
+
+# User Uploads (Keeps the folder structure, ignores test X-rays)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Ignore large AI model files if they are over 100MB (GitHub limit)
+*.keras
+*.h5

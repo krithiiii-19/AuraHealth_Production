@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Health | Medical Center</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Forces the page to take up the full screen height */
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #F8FAFC;
+        }
+        
+        /* Forces the main content to push the footer to the very bottom */
+        main {
+            flex: 1 0 auto;
+        }
+        
+        /* --- UNIVERSAL ELITE FOOTER --- */
+        .aura-global-footer {
+            flex-shrink: 0;
+            background-color: #0F172A; /* Deep Slate Background */
+            color: #94A3B8; /* Slate Gray Text */
+            padding: 1.25rem 0;
+            font-size: 0.85rem;
+            border-top: 3px solid #64FFDA; /* Elite Mint Green Accent */
+            position: relative;
+            z-index: 9999; /* Ensures it sits on top of all sidebars */
+        }
+        
+        .aura-global-footer strong {
+            color: #F8FAFC;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .aura-global-footer .footer-accent {
+            color: #64FFDA;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- This tag dynamically loads all your other pages (Dashboards, Logins, etc.) -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- THE UNIVERSAL FOOTER (Appears on every page automatically) -->
+    <!-- Enterprise Hospital Footer -->
+<footer class="bg-dark text-light pt-5 pb-4 mt-auto" style="border-top: 4px solid #64FFDA; position: relative; z-index: 10;">
+    <div class="container">
+        <div class="row text-center text-md-start">
+            
+            <!-- Brand & Mission Statement -->
+            <div class="col-md-4 col-lg-4 col-xl-3 mx-auto mb-4">
+                <h5 class="text-uppercase fw-bold mb-4" style="color: #64FFDA; letter-spacing: 1px;">
+                    <i class="fas fa-hospital-symbol me-2"></i>Aura Health
+                </h5>
+                <p class="text-white-50 small lh-lg">
+                    Advanced Pulmonology and Neural Diagnostic Center. Providing state-of-the-art AI-driven respiratory care, secure electronic medical records, and clinical excellence.
+                </p>
+            </div>
+
+            <!-- Quick Department Links -->
+            <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                <h6 class="text-uppercase fw-bold mb-4 text-white">Departments</h6>
+                <p class="mb-2"><a href="#" class="text-white-50 text-decoration-none footer-link">Pulmonology</a></p>
+                <p class="mb-2"><a href="#" class="text-white-50 text-decoration-none footer-link">Radiology Core</a></p>
+                <p class="mb-2"><a href="#" class="text-white-50 text-decoration-none footer-link">Clinical Pathology</a></p>
+                <p class="mb-2"><a href="#" class="text-white-50 text-decoration-none footer-link">E-Pharmacy</a></p>
+            </div>
+
+        <!-- Realistic Contact & Emergency Block (Boston Version) -->
+<div class="col-md-3 col-lg-3 col-xl-3 mx-auto mb-4">
+    <h6 class="text-uppercase fw-bold mb-4 text-white">Contact & Location</h6>
+    <p class="text-white-50 small mb-2"><i class="fas fa-map-marker-alt me-3"></i> 55 Innovation Way, Boston, MA</p>
+    <p class="text-white-50 small mb-2"><i class="fas fa-envelope me-3"></i> contact@aurahealth.com</p>
+    <p class="text-white-50 small mb-3"><i class="fas fa-phone me-3"></i> +1 800 555 0199</p>
+    
+    <div class="p-2 rounded mt-3" style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3);">
+        <p class="text-danger fw-bold small mb-0"><i class="fas fa-ambulance me-2"></i> 24/7 Emergency: Ext 911</p>
+    </div>
+</div>
+
+        <hr class="mb-4" style="border-color: rgba(255, 255, 255, 0.1);">
+
+        <!-- Copyright & Legal -->
+        <div class="row align-items-center">
+            <div class="col-md-7 col-lg-8">
+                <p class="text-white-50 small mb-0">
+                    © 2026 Aura Health Medical Center. All rights reserved. <br>
+                    <span style="font-size: 0.75rem; opacity: 0.7;">System Architecture by Krithi, Dhriti & Eshwari</span>
+                </p>
+            </div>
+            <div class="col-md-5 col-lg-4">
+                <div class="text-center text-md-end">
+                    <a href="#" class="text-white-50 me-3 text-decoration-none small footer-link">Privacy Policy</a>
+                    <a href="#" class="text-white-50 text-decoration-none small footer-link">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Add this tiny style block anywhere in the head or just above the footer -->
+<style>
+    /* Gives links a smooth teal highlight when hovered over */
+    .footer-link:hover { color: #64FFDA !important; transition: color 0.3s ease; }
+    
+    /* Ensures the footer always sits at the very bottom of the screen, even if a page doesn't have much text */
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+</style>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .workspace-header { background: linear-gradient(rgba(15,23,42,0.40), rgba(15,23,42,0.60)), url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2000') center/cover; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    
+    /* Fixed Gap: top is now 0 and height is 100vh */
+    .sidebar { display: flex; flex-direction: column; background: linear-gradient(180deg, #0F172A 0%, #17243E 100%); height: 100vh !important; top: 0 !important; position: fixed; width: 260px; z-index: 1050; border-right: 1px solid #1E293B; box-shadow: 4px 0 15px rgba(0,0,0,0.15); }
+    
+    .sidebar-profile { padding: 30px 20px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .profile-avatar { background: rgba(13, 202, 240, 0.1); width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; border: 1px solid rgba(13, 202, 240, 0.25); box-shadow: 0 0 15px rgba(13, 202, 240, 0.1); }
+    .logout-container { padding: 20px 15px; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto; }
+    
+    .main-wrapper { 
+        margin-left: 260px; 
+        width: calc(100% - 260px); 
+        min-height: 100vh;
+    }
+
+    /* Sidebar Navigation Styles */
+    .sidebar-nav-link {
+        color: rgba(255, 255, 255, 0.75);
+        text-decoration: none;
+        padding: 0.85rem 1.25rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        margin-bottom: 0.5rem;
+    }
+    .sidebar-nav-link:hover {
+        background: rgba(13, 148, 136, 0.15); /* Clinical Teal tint */
+        color: #64FFDA; /* Mint bright highlight */
+    }
+    
+    /* Smooth scrolling for anchor links */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Perfectly aligns the footer with the main content, preventing sidebar overlap */
+    footer {
+        margin-left: 260px !important;
+        width: calc(100% - 260px) !important;
+    }
+</style>
+
+<div class="sidebar">
+    <div class="sidebar-profile">
+        <div class="profile-avatar"><i class="fas fa-user-injured fa-2x text-info"></i></div>
+        <h5 class="text-white fw-bold mb-2">{{ session.username }}</h5>
+        <span class="badge border border-info text-info bg-info bg-opacity-10 rounded-pill px-3 py-1 fw-normal" style="font-size: 0.75rem;"><i class="fas fa-shield-alt me-1" style="font-size: 0.5rem;"></i> Portal Active</span>
+    </div>
+    
+    <!-- Sidebar Navigation Menu -->
+    <div class="px-3 pt-4">
+        <p class="text-white-50 small fw-bold text-uppercase tracking-wider mb-3 px-2">Navigation</p>
+        <a href="#book-appointment" class="sidebar-nav-link">
+            <i class="far fa-calendar-plus fs-5"></i> Book Appointment
+        </a>
+        <a href="#schedule" class="sidebar-nav-link">
+            <i class="fas fa-clock fs-5"></i> Upcoming Schedule
+        </a>
+        <a href="#reports" class="sidebar-nav-link">
+            <i class="fas fa-file-medical-alt fs-5"></i> Clinical Reports
+        </a>
+    </div>
+
+    <div class="logout-container">
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger w-100 fw-bold py-2"><i class="fas fa-lock me-2"></i> Secure Logout</a>
+    </div>
+</div>
+
+<div class="main-wrapper p-4">
+    <div class="workspace-header p-4 text-white mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1">Patient Concierge Portal</h2>
+                <p class="text-white-75 mb-0">Secure Appointment Booking & Clinical Records Matrix</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-info text-dark fs-6"><i class="fas fa-lock me-2"></i>HIPAA Compliant</span><br>
+                <small class="text-white-75">Aura Health Network</small>
+            </div>
+        </div>
+    </div>
+
+    <div id="book-appointment" class="card p-4 mb-4 shadow-sm border-start border-4 border-dark" style="scroll-margin-top: 2rem;">
+        <h5 class="fw-bold"><i class="far fa-calendar-plus me-2"></i> Request Specialist Appointment</h5>
+        <p class="small text-muted mb-4">Select an available 15-minute rotation block and securely upload your radiographic imaging to the hospital server prior to your visit.</p>
+        
+        <div id="leaveAlert" class="alert alert-danger d-none fw-bold small"><i class="fas fa-user-md-slash me-2"></i> <span id="leaveText"></span></div>
+
+        <form method="POST" class="row g-3" enctype="multipart/form-data">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Select Attending Physician</label>
+                <select name="book_doc" id="docSelect" class="form-select" required>
+                    <option value="" disabled selected>Choose Specialist...</option>
+                    {% for doc in doctors %}<option value="{{ doc.name }}">{{ doc.name }} ({{ doc.specialty }})</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">Date</label>
+                <input type="date" name="date" id="dateSelect" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold">15-Min Clinical Slot</label>
+                <select name="slot" id="slotSelect" class="form-select" required>
+                    <option value="" disabled selected>Select Time...</option>
+                    <option value="09:00 AM - 09:15 AM">09:00 AM - 09:15 AM</option>
+                    <option value="09:15 AM - 09:30 AM">09:15 AM - 09:30 AM</option>
+                    <option value="09:30 AM - 09:45 AM">09:30 AM - 09:45 AM</option>
+                    <option value="09:45 AM - 10:00 AM">09:45 AM - 10:00 AM</option>
+                    <option value="10:30 AM - 10:45 AM">10:30 AM - 10:45 AM</option>
+                    <option value="11:15 AM - 11:30 AM">11:15 AM - 11:30 AM</option>
+                    <option value="12:00 PM - 12:15 PM">12:00 PM - 12:15 PM</option>
+                    <option value="12:45 PM - 01:00 PM">12:45 PM - 01:00 PM</option>
+                    <option value="02:00 PM - 02:15 PM">02:00 PM - 02:15 PM</option>
+                    <option value="02:30 PM - 02:45 PM">02:30 PM - 02:45 PM</option>
+                    <option value="03:15 PM - 03:30 PM">03:15 PM - 03:30 PM</option>
+                    <option value="04:00 PM - 04:15 PM">04:00 PM - 04:15 PM</option>
+                    <option value="04:45 PM - 05:00 PM">04:45 PM - 05:00 PM</option>
+                </select>
+            </div>
+            <div class="col-md-12 mt-3">
+                <label class="form-label small fw-bold text-primary"><i class="fas fa-file-upload me-1"></i> Secure Radiograph Upload</label>
+                <input type="file" name="patient_xray" class="form-control" required>
+            </div>
+            <div class="col-md-12 mt-4 text-end">
+                <button type="submit" id="submitBtn" class="btn btn-dark fw-bold px-5 py-2">Submit Request to Network</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="schedule" class="card p-4 mb-4 shadow-sm" style="scroll-margin-top: 2rem;">
+        <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2"></i> My Upcoming Schedule</h5>
+        <table class="table table-sm align-middle">
+            <thead class="table-light"><tr><th>Physician</th><th>Date & Time</th><th>Status</th></tr></thead>
+            <tbody>
+                {% for apt in appointments %}
+                <tr>
+                    <td class="fw-bold">{{ apt.doctor_name }}</td>
+                    <td>{{ apt.date }} <br><span class="text-muted small">{{ apt.time_slot }}</span></td>
+                    <!-- Hardcoded to always show CONFIRMED -->
+                    <td><span class="badge bg-success">CONFIRMED</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="reports" class="card p-4 shadow-sm" style="scroll-margin-top: 2rem;">
+        <h5 class="fw-bold mb-3"><i class="fas fa-file-medical-alt me-2"></i> My Clinical Neural Reports</h5>
+        <table class="table align-middle">
+            <thead class="table-light"><tr><th>Date</th><th>Physician</th><th>Diagnosis</th><th>Heatmap Mapping</th><th>Official Report</th></tr></thead>
+            <tbody>
+                {% for rec in records %}
+                <tr>
+                    <td class="small">{{ rec.timestamp }}</td>
+                    <td class="fw-bold">{{ rec.doctor_name }}</td>
+                    <td class="fw-bold {{ 'text-danger' if 'DETECTED' in rec.diagnosis else 'text-success' }}">{{ rec.diagnosis }}</td>
+                    <td>
+                        {% if rec.heat_img %}
+                        <img src="{{ url_for('static', filename=rec.heat_img) }}" style="height: 60px; border-radius: 4px;" class="shadow-sm border">
+                        {% else %}
+                        <span class="small text-muted fst-italic">Awaiting Scan...</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if rec.pdf_link %}
+                        <a href="{{ url_for('static', filename=rec.pdf_link) }}" download class="btn btn-sm btn-outline-primary fw-bold"><i class="fas fa-download me-1"></i> Download PDF</a>
+                        {% else %}
+                        <span class="small text-muted fst-italic">Awaiting Scan...</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const bookedData = {{ booked_data | tojson | safe }};
+    const leaveData = {{ leave_data | tojson | safe }};
+    
+    function validateSlots() {
+        const doc = document.getElementById('docSelect').value;
+        const date = document.getElementById('dateSelect').value;
+        const slotSelect = document.getElementById('slotSelect');
+        const alertBox = document.getElementById('leaveAlert');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (!doc || !date) return;
+        
+        Array.from(slotSelect.options).forEach(opt => { 
+            if(opt.value) { opt.disabled = false; opt.text = opt.value; }
+        });
+        slotSelect.disabled = false;
+        submitBtn.disabled = false;
+        alertBox.classList.add('d-none');
+        
+        const doctorLeaves = leaveData.filter(l => l.doctor === doc && l.date === date);
+        
+        if (doctorLeaves.length > 0) {
+            let alertMessages = [];
+            
+            doctorLeaves.forEach(leave => {
+                if (leave.shift === 'Full Day') {
+                    slotSelect.disabled = true;
+                    submitBtn.disabled = true;
+                    alertMessages.push(`Physician is on leave for the entire day.`);
+                } else {
+                    alertMessages.push(`Physician is unavailable for the ${leave.shift} shift.`);
+                    
+                    Array.from(slotSelect.options).forEach(opt => {
+                        const time = opt.value;
+                        if (!time) return;
+                        
+                        if (leave.shift === 'Morning' && time.includes('AM')) {
+                            opt.disabled = true; opt.text = time + " (UNAVAILABLE - LEAVE)";
+                        }
+                        if (leave.shift === 'Afternoon' && time.includes('PM') && (time.startsWith('12') || time.startsWith('01') || time.startsWith('02') || time.startsWith('03'))) {
+                            opt.disabled = true; opt.text = time + " (UNAVAILABLE - LEAVE)";
+                        }
+                        if (leave.shift === 'Evening' && time.includes('PM') && (time.startsWith('04') || time.startsWith('05'))) {
+                            opt.disabled = true; opt.text = time + " (UNAVAILABLE - LEAVE)";
+                        }
+                    });
+                }
+            });
+            
+            alertBox.classList.remove('d-none');
+            document.getElementById('leaveText').innerText = alertMessages.join(" ");
+        }
+        
+        const bookedSlots = bookedData.filter(b => b.doctor === doc && b.date === date).map(b => b.slot);
+        Array.from(slotSelect.options).forEach(opt => {
+            if (bookedSlots.includes(opt.value)) {
+                opt.disabled = true;
+                opt.text = opt.value + " (UNAVAILABLE - BOOKED)";
+            }
+        });
+    }
+    
+    document.getElementById('docSelect').addEventListener('change', validateSlots);
+    document.getElementById('dateSelect').addEventListener('change', validateSlots);
+</script>
+{% endblock %}

@@ -1,0 +1,1237 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    :root {
+        --primary-dark: #0F172A;
+        --clinical-teal: #0D9488;
+        --mint-bright: #64FFDA;
+        --light-bg: #F8FAFC;
+        --text-slate: #334155;
+        --text-muted: #64748B;
+        --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 8px 15px -6px rgba(0, 0, 0, 0.03);
+        --hover-shadow: 0 20px 35px -5px rgba(13, 148, 136, 0.12), 0 10px 15px -6px rgba(13, 148, 136, 0.06);
+    }
+
+    body {
+        background-color: var(--light-bg);
+        color: var(--text-slate);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* --- ELITE BRAND NAVBAR --- */
+    .hospital-navbar {
+        background: #FFFFFF;
+        padding: 1rem 4rem;
+        box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 1050;
+    }
+    .brand-logo {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .nav-menu-links {
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+    }
+    .nav-menu-links a {
+        color: var(--text-slate);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    .nav-menu-links a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -4px;
+        left: 0;
+        background-color: var(--clinical-teal);
+        transition: width 0.2s ease;
+    }
+    .nav-menu-links a:hover {
+        color: var(--clinical-teal);
+    }
+    .nav-menu-links a:hover::after {
+        width: 100%;
+    }
+    .btn-portal-action {
+        background: var(--primary-dark);
+        color: var(--mint-bright) !important;
+        font-weight: 700;
+        padding: 0.65rem 1.75rem;
+        border-radius: 8px;
+        text-decoration: none;
+        border: 2px solid var(--primary-dark);
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-portal-action:hover {
+        background: #1E293B;
+        border-color: #1E293B;
+        transform: translateY(-2px);
+    }
+
+    /* --- HERO SECTION --- */
+    .hero-container {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        color: #FFFFFF;
+        padding: 6rem 4rem 11rem 4rem; 
+        border-radius: 0; 
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden; 
+        -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+        mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+    }
+    
+    .hero-badge {
+        background: rgba(13, 148, 136, 0.15);
+        color: var(--mint-bright);
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.75rem;
+    }
+    .hero-headline {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -1px;
+    }
+    .hero-accent {
+        color: var(--mint-bright);
+    }
+    .hero-description {
+        color: #94A3B8;
+        font-size: 1.15rem;
+        line-height: 1.65;
+        max-width: 580px;
+    }
+    .btn-clinical-primary {
+        background: var(--clinical-teal);
+        color: #FFFFFF !important;
+        font-weight: 700;
+        padding: 0.9rem 2.25rem;
+        border-radius: 8px;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(13, 148, 136, 0.4);
+        transition: all 0.25s ease;
+        display: inline-block;
+    }
+    .btn-clinical-primary:hover {
+        background: #0F766E;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(13, 148, 136, 0.6);
+    }
+    .btn-clinical-secondary {
+        background: transparent;
+        color: #FFFFFF !important;
+        font-weight: 600;
+        padding: 0.9rem 2rem;
+        border-radius: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+    .btn-clinical-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .hero-image-wrapper {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 55%; 
+        height: 100%;
+        background: linear-gradient(rgba(15, 23, 42, 0.15), rgba(15, 23, 42, 0.15)), 
+                    url('https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=1200') center/cover no-repeat;
+        -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 25%);
+        mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 25%);
+        z-index: 1;
+        border-radius: 0; 
+        border: none;
+        box-shadow: none;
+    }
+
+    /* --- METRICS BAR --- */
+    .metrics-ribbon {
+        margin-top: -7.5rem;
+        margin-bottom: 5rem;
+        position: relative;
+        z-index: 10;
+    }
+    .metric-card {
+        background: #FFFFFF;
+        border-radius: 18px;
+        padding: 1.75rem;
+        text-align: center;
+        border: 1px solid #E2E8F0;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+    }
+    .metric-value {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: var(--clinical-teal);
+        margin-bottom: 0.25rem;
+    }
+    .metric-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+    }
+
+    /* --- SECTION TITLE --- */
+    .section-badge {
+        background: rgba(13, 148, 136, 0.1);
+        color: var(--clinical-teal);
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 1.5px;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    /* --- ENVIRONMENT & FACILITIES CARD --- */
+    .facility-card {
+        border-radius: 20px;
+        overflow: hidden;
+        background: white;
+        border: 1px solid #E2E8F0;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    .facility-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+    }
+    .facility-img {
+        height: 240px;
+        background-size: cover;
+        background-position: center;
+        background-color: #E2E8F0;
+    }
+    .facility-body {
+        padding: 1.5rem;
+    }
+
+    /* --- CLINICAL CARDS --- */
+    .clinical-card-custom {
+        background: #FFFFFF;
+        border-radius: 18px;
+        padding: 2.25rem;
+        border: 1px solid #E2E8F0;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+    }
+    .clinical-card-custom:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--hover-shadow);
+        border-color: var(--clinical-teal);
+    }
+    .icon-box {
+        width: 52px;
+        height: 52px;
+        background: rgba(13, 148, 136, 0.1);
+        color: var(--clinical-teal);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1.75rem;
+        transition: all 0.3s ease;
+    }
+    .clinical-card-custom:hover .icon-box {
+        background: var(--clinical-teal);
+        color: #FFFFFF;
+    }
+
+    /* --- TEXT-BASED SPECIALIST CARDS --- */
+    .specialist-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #E2E8F0;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        padding: 2rem;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .specialist-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+    }
+    .specialist-avatar {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-dark);
+        color: var(--mint-bright);
+        font-size: 2rem;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.25rem auto;
+    }
+    .btn-book-slot {
+        background: var(--clinical-teal);
+        color: white !important;
+        font-weight: 700;
+        border-radius: 8px;
+        padding: 0.6rem 1.5rem;
+        width: 100%;
+        border: none;
+        transition: all 0.2s ease;
+        margin-top: auto;
+    }
+    .btn-book-slot:hover {
+        background: #0F766E;
+    }
+
+    /* --- PATIENT TESTIMONIALS --- */
+    .testimonial-card {
+        background: #FFFFFF;
+        border-radius: 20px;
+        border: 1px solid #E2E8F0;
+        box-shadow: var(--card-shadow);
+        padding: 2.25rem;
+        height: 100%;
+        position: relative;
+    }
+    .testimonial-quote {
+        font-size: 1.05rem;
+        line-height: 1.65;
+        font-style: italic;
+        color: var(--text-slate);
+        margin-bottom: 1.5rem;
+    }
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .author-icon {
+        width: 44px;
+        height: 44px;
+        background: #F1F5F9;
+        color: var(--clinical-teal);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    /* --- PROTOCOLS & ACCREDITATIONS --- */
+    .protocol-card {
+        background: #FFFFFF;
+        border-radius: 18px;
+        border: 1px solid #E2E8F0;
+        box-shadow: var(--card-shadow);
+        padding: 2rem;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    .protocol-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--hover-shadow);
+    }
+
+    /* --- WORKFLOW TIME INFOGRAPHIC --- */
+    .workflow-card {
+        background: #FFFFFF;
+        border-radius: 18px;
+        padding: 2.5rem 2rem;
+        border: 1px solid #E2E8F0;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    .workflow-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+        border-color: var(--clinical-teal);
+    }
+    .workflow-step-num {
+        width: 44px;
+        height: 44px;
+        background: var(--primary-dark);
+        color: var(--mint-bright);
+        font-weight: 800;
+        font-size: 1.1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem auto;
+        transition: all 0.3s ease;
+    }
+    .workflow-card:hover .workflow-step-num {
+        background: var(--clinical-teal);
+        color: #FFFFFF;
+    }
+
+    /* --- AI CHATBOT WIDGET --- */
+    .chat-widget-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 65px;
+        height: 65px;
+        background: var(--clinical-teal);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        box-shadow: 0 10px 25px rgba(13, 148, 136, 0.4);
+        cursor: pointer;
+        z-index: 1000;
+        transition: all 0.3s ease;
+    }
+    .chat-widget-btn:hover {
+        transform: scale(1.08);
+        background: #0F766E;
+    }
+    .chat-window {
+        position: fixed;
+        bottom: 110px;
+        right: 30px;
+        width: 360px;
+        height: 500px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--hover-shadow);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(20px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #E2E8F0;
+    }
+    .chat-window.active {
+        opacity: 1;
+        pointer-events: all;
+        transform: translateY(0);
+    }
+    .chat-header {
+        background: var(--primary-dark);
+        color: white;
+        padding: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .chat-header-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .chat-avatar {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--mint-bright);
+        font-size: 1.1rem;
+    }
+    .chat-close {
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.6);
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: color 0.2s;
+        padding: 0;
+    }
+    .chat-close:hover {
+        color: white;
+    }
+    .chat-body {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        background: #F8FAFC;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .chat-bubble {
+        max-width: 85%;
+        padding: 12px 16px;
+        border-radius: 16px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    .chat-bot {
+        background: white;
+        color: var(--text-slate);
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        border: 1px solid #E2E8F0;
+    }
+    .chat-user {
+        background: var(--clinical-teal);
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 2px 6px rgba(13, 148, 136, 0.2);
+    }
+    .chat-footer {
+        padding: 1.2rem;
+        background: white;
+        border-top: 1px solid #E2E8F0;
+        display: flex;
+        gap: 10px;
+    }
+    .chat-input {
+        flex: 1;
+        border: 1px solid #E2E8F0;
+        border-radius: 25px;
+        padding: 10px 18px;
+        outline: none;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+    }
+    .chat-input:focus {
+        border-color: var(--clinical-teal);
+    }
+    .chat-send {
+        background: var(--clinical-teal);
+        color: white;
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .chat-send:hover {
+        background: #0F766E;
+        transform: translateY(-2px);
+    }
+</style>
+
+<!-- Custom Clean Header -->
+<nav class="hospital-navbar">
+    <div class="brand-logo">
+        <i class="fas fa-lungs" style="color: var(--clinical-teal);"></i>
+        <span>Aura Health</span>
+    </div>
+    <div class="nav-menu-links">
+        <a href="#overview">Overview</a>
+        <a href="#expertise">Pathology Matrix</a>
+        <a href="#specialists">Pulmonologists</a>
+        <a href="#testimonials">Experiences</a>
+        <a href="#er" class="text-danger">ER Protocol</a>
+        <a href="{{ url_for('login') }}" class="btn-portal-action">
+            <i class="fas fa-user-shield me-2"></i>Access Portal
+        </a>
+    </div>
+</nav>
+
+<!-- Hero Zone -->
+<div class="hero-container">
+    <!-- Image absolutely positioned to the full right edge -->
+    <div class="hero-image-wrapper"></div>
+    
+    <!-- Text container brought to the front -->
+    <div class="container-fluid px-4" style="position: relative; z-index: 2;">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <div class="hero-badge">
+                    <i class="fas fa-shield-virus"></i> STATE-OF-THE-ART PULMONARY CENTER
+                </div>
+                <h1 class="hero-headline mb-4">
+                    Where Clinical Expertise Meets <span class="hero-accent">Automated Precision</span>
+                </h1>
+                <p class="hero-description mb-4">
+                    Aura Health integrates advanced neural classification networks with world-class specialists to offer unparalleled diagnostics and targeted therapy for pneumonia and respiratory conditions.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('login') }}" class="btn-clinical-primary">
+                        <i class="fas fa-stethoscope me-2"></i>Book Consultation
+                    </a>
+                    <a href="#workflow" class="btn-clinical-secondary">
+                        Explore Journey <i class="fas fa-arrow-down ms-2" style="font-size: 0.85rem;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-5">
+
+    <!-- Metrics Trust Bar -->
+    <div id="metrics" class="row g-4 metrics-ribbon">
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">99.4%</div>
+                <div class="metric-label">Diagnostic Accuracy</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">24/7</div>
+                <div class="metric-label">Clinical Coverage</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">&lt; 10m</div>
+                <div class="metric-label">Radiograph Screen Time</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">100%</div>
+                <div class="metric-label">Secure EMR Sync</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Hospital Overview -->
+    <div id="overview" class="row align-items-center g-5 my-5 pt-3">
+        <div class="col-lg-6">
+            <div style="border-radius: 20px; overflow: hidden; box-shadow: var(--card-shadow); height: 400px; background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(13, 148, 136, 0.85)), url('https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=1000') center/cover no-repeat; display: flex; align-items: center; justify-content: center; color: white; text-align: center; padding: 2rem;">
+                <div>
+                    <i class="fas fa-heartbeat fa-3x mb-3 text-white"></i>
+                    <h3 class="fw-bold">Aura Imaging Infrastructure</h3>
+                    <p class="small text-white-75 mb-0">Integrated Diagnostic Network & EMR Pipelines</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <span class="section-badge">Hospital Profile</span>
+            <h2 class="fw-bold mt-2 mb-4 text-dark" style="font-size: 2.25rem;">Pioneering Clinical Software Infrastructure</h2>
+            <p class="text-muted mb-4" style="font-size: 1.05rem; line-height: 1.7;">
+                Aura Health Medical Center is a premier, tier-one medical facility specializing in advanced respiratory conditions. We are dedicated to providing concierge-level care combined with cutting-edge technological infrastructure.
+            </p>
+            <p class="text-muted mb-4" style="font-size: 1.05rem; line-height: 1.7;">
+                Our facility is the first in the region to fully integrate automated diagnostic neural processing directly into our Electronic Medical Records (EMR), allowing for instantaneous, highly accurate evaluations that give our specialists a massive clinical advantage.
+            </p>
+        </div>
+    </div>
+
+    <!-- Environment & Facilities Gallery -->
+    <div id="facilities" class="my-5 py-4">
+        <div class="text-center mb-5">
+            <span class="section-badge">Modern Facilities</span>
+            <h2 class="fw-bold text-dark mt-2">Our Environment & Lab Infrastructure</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Take a digital tour of our state-of-the-art diagnostic facilities designed for maximum patient safety and care standards.</p>
+        </div>
+        <div class="row g-4">
+            <!-- Row 1 -->
+            <div class="col-md-4">
+                <div class="facility-card">
+                    <div class="facility-img" style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=600&h=400');"></div>
+                    <div class="facility-body">
+                        <h5 class="fw-bold mb-2">Luxury Welcoming Lobby</h5>
+                        <p class="text-muted small mb-0">Spacious and welcoming clinic area designed for comfortable patient check-in and premium reception onboarding.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="facility-card">
+                    <div class="facility-img" style="background-image: url('https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=600&h=400');"></div>
+                    <div class="facility-body">
+                        <h5 class="fw-bold mb-2">Advanced Imaging Lab</h5>
+                        <p class="text-muted small mb-0">Equipped with highly calibrated radiograph machines synchronizing chest data instantly to our AI neural layers.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="facility-card">
+                    <div class="facility-img" style="background-image: url('https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=600&h=400');"></div>
+                    <div class="facility-body">
+                        <h5 class="fw-bold mb-2">Clinical Consultation Suite</h5>
+                        <p class="text-muted small mb-0">Private, comfortable examination spaces where our top physicians work together to formulate patient pathways.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Row 2 -->
+            <div class="col-md-4">
+                <div class="facility-card">
+                    <div class="facility-img" style="background-image: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=600&h=400');"></div>
+                    <div class="facility-body">
+                        <h5 class="fw-bold mb-2">Respiratory ICU</h5>
+                        <p class="text-muted small mb-0">State-of-the-art intensive care units equipped with advanced ventilators and constant vital monitoring for critical respiratory patients.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="facility-card">
+                    <div class="facility-img" style="background-image: url('https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=600&h=400');"></div>
+                    <div class="facility-body">
+                        <h5 class="fw-bold mb-2">Automated Pathology Center</h5>
+                        <p class="text-muted small mb-0">High-throughput robotic laboratory systems that process biological samples with zero cross-contamination and maximum speed.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="facility-card">
+                    <div class="facility-img" style="background-image: url('https://images.unsplash.com/photo-1530497610245-94d3c16cda28?auto=format&fit=crop&q=80&w=600&h=400');"></div>
+                    <div class="facility-body">
+                        <h5 class="fw-bold mb-2">Pulmonary Recovery Wing</h5>
+                        <p class="text-muted small mb-0">Dedicated rehabilitation spaces focused on lung capacity restoration and guided physical therapy for post-treatment patients.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Specialized Clinical Profiles Grid -->
+    <div id="expertise" class="my-5 py-4">
+        <div class="text-center mb-5">
+            <span class="section-badge">Disease Matrix</span>
+            <h2 class="fw-bold text-dark mt-2">Precision Pathology Classifications</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Our medical specialists analyze and isolate specific conditions to ensure fast, optimized recovery protocols.</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-3">
+                <div class="clinical-card-custom">
+                    <div class="icon-box"><i class="fas fa-bacteria"></i></div>
+                    <h5 class="fw-bold text-dark mb-3">Bacterial (Typical)</h5>
+                    <p class="text-muted small mb-0">Severe pulmonary manifestations, predominantly caused by <em>Streptococcus pneumoniae</em>, managed via targeted broad-spectrum therapy protocols.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="clinical-card-custom">
+                    <div class="icon-box"><i class="fas fa-virus"></i></div>
+                    <h5 class="fw-bold text-dark mb-3">Viral Pathogens</h5>
+                    <p class="text-muted small mb-0">Driven by viral streams including Influenza, RSV, and SARS-CoV-2, necessitating rigorous monitoring for secondary bacterial infections.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="clinical-card-custom">
+                    <div class="icon-box"><i class="fas fa-lungs-virus"></i></div>
+                    <h5 class="fw-bold text-dark mb-3">Atypical Form</h5>
+                    <p class="text-muted small mb-0">Often categorized as "Walking Pneumonia." Defined by milder systemic presentations but persistent, structural bronchial coughing patterns.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="clinical-card-custom">
+                    <div class="icon-box"><i class="fas fa-head-side-cough"></i></div>
+                    <h5 class="fw-bold text-dark mb-3">Aspiration Risk</h5>
+                    <p class="text-muted small mb-0">Highly critical chemical pneumonitis triggered by the inhalation of foreign materials or gastric assets directly into lung fields.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTERED PULMONOLOGY SPECIALISTS BOARD -->
+    <div id="specialists" class="my-5 py-4">
+        <div class="text-center mb-5">
+            <span class="section-badge">Expert Pulmonologists</span>
+            <h2 class="fw-bold text-dark mt-2">Our Executive Pulmonary Board</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Book 10-minute priority screening slots on our secure system layer with top-ranked respiratory specialists.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <!-- Doctor Profiles (21 Total) -->
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Krithi U Kotian</h5>
+                    <p class="text-muted small mb-2">Chief Pulmonologist & Clinical Lead</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 15 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Devika P Shetty</h5>
+                    <p class="text-muted small mb-2">Senior Specialist & Radiology Analyst</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 12 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Shaktha</h5>
+                    <p class="text-muted small mb-2">Interventional Bronchoscopy Fellow</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 10 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Shrejal B Shetty</h5>
+                    <p class="text-muted small mb-2">Pediatric Pulmonology Specialist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 14 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Sanjana Tej</h5>
+                    <p class="text-muted small mb-2">Critical Care Pulmonologist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 11 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Lawrence D'souza</h5>
+                    <p class="text-muted small mb-2">Respiratory Therapist & Rehab Lead</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 9 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Marcus Vance</h5>
+                    <p class="text-muted small mb-2">Thoracic Surgeon</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 18 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Elena Rostova</h5>
+                    <p class="text-muted small mb-2">Sleep Medicine Specialist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 10 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Michael Chang</h5>
+                    <p class="text-muted small mb-2">Asthma & Allergy Specialist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 12 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Sarah Mitchell</h5>
+                    <p class="text-muted small mb-2">Pulmonary Rehabilitation Specialist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 14 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. David Thorne</h5>
+                    <p class="text-muted small mb-2">Critical Care Attending</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 9 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Anita Patel</h5>
+                    <p class="text-muted small mb-2">Interventional Pulmonologist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 16 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. James Sterling</h5>
+                    <p class="text-muted small mb-2">Diagnostic Pulmonology Lead</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 20 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Olivia Grant</h5>
+                    <p class="text-muted small mb-2">Immunology & Respiratory Specialist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 11 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Robert Chen</h5>
+                    <p class="text-muted small mb-2">Intensive Care Pulmonologist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 10 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Emily Hayes</h5>
+                    <p class="text-muted small mb-2">Neuropulmonology Consultant</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 13 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. William Barrett</h5>
+                    <p class="text-muted small mb-2">Pulmonary Oncology Specialist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 17 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Sofia Reyes</h5>
+                    <p class="text-muted small mb-2">Chief of Respiratory Medicine</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 22 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. John Alistair</h5>
+                    <p class="text-muted small mb-2">Emergency Pulmonology Attending</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 14 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Chloe Bennett</h5>
+                    <p class="text-muted small mb-2">Acute Care Pulmonologist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 8 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="specialist-card">
+                    <div class="specialist-avatar"><i class="fas fa-user-md"></i></div>
+                    <h5 class="fw-bold text-dark mb-1">Dr. Lucas Wright</h5>
+                    <p class="text-muted small mb-2">Advanced Bronchoscopy Specialist</p>
+                    <span class="badge bg-light text-dark mb-3">Exp: 15 yrs</span>
+                    <a href="{{ url_for('login') }}" class="btn-book-slot btn">Book Slot</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PATIENT EXPERIENCES -->
+    <div id="testimonials" class="my-5 py-4 bg-light p-4 rounded-4">
+        <div class="text-center mb-5">
+            <span class="section-badge">Patient Journeys</span>
+            <h2 class="fw-bold text-dark mt-2">Verified Patient Experiences</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">"The automated report vision scan flag caught my typical lobar density within ten minutes. Aura Health's system works with incredible speed."</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="author-icon"><i class="fas fa-quote-left"></i></div>
+                        <div><h6 class="fw-bold text-dark mb-0">Sarah Davis</h6><small class="text-muted">Pulmonary Patient</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">"The clinical software integration is spectacular. The neural heatmap accurately highlighted my atypical pneumonia parameters."</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="author-icon"><i class="fas fa-quote-left"></i></div>
+                        <div><h6 class="fw-bold text-dark mb-0">Richard Miller</h6><small class="text-muted">Screening Patient</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">"The Secure EMR integration gave me my diagnostic PDF download instantly. The professional environment exceeds standard portals."</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="author-icon"><i class="fas fa-quote-left"></i></div>
+                        <div><h6 class="fw-bold text-dark mb-0">Emma Watson</h6><small class="text-muted">Aspiration Staging</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Infographic -->
+    <div id="workflow" class="my-5 py-5 border-top border-bottom border-light">
+        <div class="text-center mb-5">
+            <span class="section-badge">Diagnostic Workflow</span>
+            <h2 class="fw-bold text-dark mt-2">Transparent Clinical Staging</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Optimizing diagnostic tracking to ensure absolute transparency from incoming analysis to therapeutic release.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="workflow-card">
+                    <div class="workflow-step-num">1</div>
+                    <h5 class="fw-bold text-dark text-center mb-2">Radiograph Secure Upload</h5>
+                    <p class="text-muted small text-center mb-0">Patient digital X-ray imagery is processed securely into our HIPAA-compliant system layers.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="workflow-card">
+                    <div class="workflow-step-num">2</div>
+                    <h5 class="fw-bold text-dark text-center mb-2">Analytical Heatmap Scan</h5>
+                    <p class="text-muted small text-center mb-0">The neural diagnostic engine extracts target density values to stage and map structural opacities immediately.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="workflow-card">
+                    <div class="workflow-step-num">3</div>
+                    <h5 class="fw-bold text-dark text-center mb-2">Attending Validation</h5>
+                    <p class="text-muted small text-center mb-0">On-duty pulmonologists review the validation trends to confirm treatment paths with total clinical security.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROTOCOLS -->
+    <div id="protocols" class="my-5 py-4">
+        <div class="text-center mb-5">
+            <span class="section-badge">Clinical Safety First</span>
+            <h2 class="fw-bold text-dark mt-2">Hospital Protocols & Safety Care Standards</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="protocol-card">
+                    <h5 class="fw-bold text-dark mb-3"><i class="fas fa-hand-holding-medical text-teal me-2" style="color: var(--clinical-teal);"></i> Sterilization Standards</h5>
+                    <p class="text-muted small mb-0">Utilizing Class-B autoclave sterilization and HEPA-filters to maintain pure air quality parameters.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="protocol-card">
+                    <h5 class="fw-bold text-dark mb-3"><i class="fas fa-shield-virus text-teal me-2" style="color: var(--clinical-teal);"></i> Infection Prevention</h5>
+                    <p class="text-muted small mb-0">Consistent patient risk evaluation protocols and sterile isolation zones for contagious airborne vectors.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="protocol-card">
+                    <h5 class="fw-bold text-dark mb-3"><i class="fas fa-notes-medical text-teal me-2" style="color: var(--clinical-teal);"></i> Emergency Readiness</h5>
+                    <p class="text-muted small mb-0">Fully redundantly-powered respiratory units and continuous oxygen reserves for critical interventions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Protocol Alert -->
+    <div id="er" class="alert p-4 mb-5 border-0 shadow-sm d-flex align-items-start gap-4" style="background: #FEF2F2; border-left: 5px solid #EF4444 !important; border-radius: 12px;">
+        <div class="text-danger fs-3 pt-1"><i class="fas fa-exclamation-triangle"></i></div>
+        <div>
+            <h4 class="fw-bold text-danger mb-2">Critical Emergency Room Guidelines</h4>
+            <p class="text-dark-75 mb-0" style="line-height: 1.6; font-size: 0.95rem;">
+                Call emergency services immediately if the patient exhibits central cyanosis (bluish lips/fingertips) or displays an absolute inability to complete full sentences without pausing for breath.
+            </p>
+        </div>
+    </div>
+
+    <!-- LOCATION & CONTACT -->
+    <div id="location" class="my-5 py-4">
+        <div class="text-center mb-5">
+            <span class="section-badge">Visit Us</span>
+            <h2 class="fw-bold text-dark mt-2">Aura Health Headquarters</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Conveniently located in the heart of Boston's Medical District. We provide dedicated parking for all our clinical and emergency patients.</p>
+        </div>
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-4">
+                <div class="protocol-card d-flex flex-column justify-content-center" style="height: 100%; border: none; background: linear-gradient(135deg, var(--primary-dark), #1E293B); color: white;">
+                    <h4 class="fw-bold text-white mb-4">Contact Details</h4>
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <div class="text-mint-bright" style="color: var(--mint-bright); font-size: 1.5rem;"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <h6 class="fw-bold text-white mb-1">Main Campus</h6>
+                            <p class="text-white-50 small mb-0">Aura Health Medical Center<br>55 Innovation Way<br>Boston, MA 02114</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <div class="text-mint-bright" style="color: var(--mint-bright); font-size: 1.5rem;"><i class="fas fa-phone-alt"></i></div>
+                        <div>
+                            <h6 class="fw-bold text-white mb-1">24/7 Hotline</h6>
+                            <p class="text-white-50 small mb-0">+1 800 555 0199<br>ER: Extension 911</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="text-mint-bright" style="color: var(--mint-bright); font-size: 1.5rem;"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <h6 class="fw-bold text-white mb-1">Digital Reception</h6>
+                            <p class="text-white-50 small mb-0">contact@aurahealth.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div style="border-radius: 20px; overflow: hidden; box-shadow: var(--card-shadow); height: 400px; border: 1px solid #E2E8F0;">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2948.4063810232497!2d-71.07062408453472!3d42.36272597918664!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89e3709b114d5e75%3A0xc34ba77501a41dd4!2sMassachusetts%20General%20Hospital!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI CHATBOT WIDGET -->
+<div class="chat-widget-btn" id="chatWidgetBtn">
+    <i class="fas fa-comment-dots"></i>
+</div>
+
+<div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+        <div class="chat-header-info">
+            <div class="chat-avatar"><i class="fas fa-robot"></i></div>
+            <div>
+                <h6 class="mb-0 fw-bold" style="font-size: 0.95rem;">Aura Assistant</h6>
+                <small style="font-size: 0.75rem; color: var(--mint-bright);"><i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Online</small>
+            </div>
+        </div>
+        <button class="chat-close" id="chatCloseBtn"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="chat-body" id="chatBody">
+        <div class="chat-bubble chat-bot">
+            Hello! I'm Aura Assistant. How can I help you today? I can answer questions about our facilities, specialists, or help you book a consultation.
+        </div>
+    </div>
+    <div class="chat-footer">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Type a message...">
+        <button class="chat-send" id="chatSendBtn"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatBtn = document.getElementById('chatWidgetBtn');
+        const chatWindow = document.getElementById('chatWindow');
+        const closeBtn = document.getElementById('chatCloseBtn');
+        const sendBtn = document.getElementById('chatSendBtn');
+        const inputField = document.getElementById('chatInput');
+        const chatBody = document.getElementById('chatBody');
+
+        // Toggle Chat
+        chatBtn.addEventListener('click', () => {
+            chatWindow.classList.add('active');
+            chatBtn.style.transform = 'scale(0)';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            chatWindow.classList.remove('active');
+            chatBtn.style.transform = 'scale(1)';
+        });
+
+        // Smart & Friendly Bot Response Logic
+        const getBotResponse = (input) => {
+            const lowerInput = input.toLowerCase();
+            
+            // --- Friendly Conversation & Small Talk ---
+            if (lowerInput.includes('how are you') || lowerInput.includes('how do you do') || lowerInput.includes('how is it going')) {
+                return "I'm doing wonderfully, thank you so much for asking! I'm here and ready to help. How are you feeling today?";
+            } else if (lowerInput.includes('thank you') || lowerInput.includes('thanks') || lowerInput.includes('appreciate')) {
+                return "You're very welcome! It's my absolute pleasure to help. Is there anything else I can assist you with today?";
+            } else if (lowerInput.includes('bye') || lowerInput.includes('goodbye') || lowerInput.includes('see you')) {
+                return "Goodbye! Wishing you a beautiful day and great health. Don't hesitate to reach out if you ever need us again!";
+            } else if (lowerInput.includes('good morning') || lowerInput.includes('good afternoon') || lowerInput.includes('good evening')) {
+                return "Good day to you! Welcome to Aura Health. How can we make your day a little better?";
+            } else if (lowerInput === 'ok' || lowerInput === 'okay' || lowerInput === 'great' || lowerInput === 'awesome' || lowerInput === 'good') {
+                return "Wonderful! I'm so glad. Please let me know if any other questions pop up!";
+            } else if (lowerInput.includes('hello') || lowerInput.includes('hi ') || lowerInput === 'hi' || lowerInput.includes('hey')) {
+                return "Hello there! Welcome to Aura Health. I'm so glad you're here. How can I assist you with your respiratory care today?";
+            } 
+            
+            // --- Core Hospital Functionality ---
+            else if (lowerInput.includes('doctor') || lowerInput.includes('specialist')) {
+                return "We have an elite board of 21 pulmonology specialists ready to assist you. You can browse their profiles and clinical experience in the section just above.";
+            } else if (lowerInput.includes('book') || lowerInput.includes('appointment') || lowerInput.includes('schedule')) {
+                return "I'd be happy to help with that! To book an appointment, please click 'Access Portal' at the top right, or use the 'Book Slot' buttons on any of our specialist cards.";
+            } else if (lowerInput.includes('emergency') || lowerInput.includes('er')) {
+                return "If you are experiencing a medical emergency, please proceed immediately to our physical ER or call emergency services. Your safety is our top priority—please do not wait for an online response.";
+            } else if (lowerInput.includes('location') || lowerInput.includes('where') || lowerInput.includes('address')) {
+                return "We are conveniently located at the Aura Health Medical Center right here in Boston's Medical District. You can find our interactive map and contact details at the bottom of the page!";
+            } else if (lowerInput.includes('pneumonia') || lowerInput.includes('disease') || lowerInput.includes('treatment')) {
+                return "We specialize in treating Bacterial, Viral, Atypical, and Aspiration Pneumonia. We use state-of-the-art automated precision technology to ensure the best possible care for you.";
+            } else {
+                return "That's a great question! To give you the best personalized answer and assistance, could you please log in to the Access Portal? Our medical team will take it from there!";
+            }
+        };
+
+        // Send Message Logic
+        const sendMessage = () => {
+            const text = inputField.value.trim();
+            if(text) {
+                // Display User Message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'chat-bubble chat-user';
+                userMsg.textContent = text;
+                chatBody.appendChild(userMsg);
+                
+                inputField.value = '';
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+                // Display Simulated Bot Response with a slight delay
+                setTimeout(() => {
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'chat-bubble chat-bot';
+                    botMsg.textContent = getBotResponse(text);
+                    chatBody.appendChild(botMsg);
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }, 800);
+            }
+        };
+
+        sendBtn.addEventListener('click', sendMessage);
+        inputField.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendMessage();
+        });
+    });
+</script>
+{% endblock %}

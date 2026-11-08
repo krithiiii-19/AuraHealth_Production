@@ -1,0 +1,485 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .workspace-header { background: linear-gradient(rgba(15,23,42,0.50), rgba(15,23,42,0.50)), url('https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=2000') center/cover; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .action-panel { background-color: #F8FAFC; border-left: 1px solid #E2E8F0; height: 100%; }
+    
+    /* Fixed Gap: top is now 0 and height is 100vh */
+    .sidebar { display: flex; flex-direction: column; background: linear-gradient(180deg, #0F172A 0%, #17243E 100%); height: 100vh !important; top: 0 !important; position: fixed; width: 260px; z-index: 1000; border-right: 1px solid #1E293B; box-shadow: 4px 0 15px rgba(0,0,0,0.15); }
+    
+    /* Fixed Main Content Overlap: forces content to start after the 260px sidebar */
+    .main-wrapper { margin-left: 260px; width: calc(100% - 260px); min-height: 100vh; }
+    
+    .sidebar-profile { padding: 30px 20px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .profile-avatar { background: rgba(100, 255, 218, 0.1); width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; border: 1px solid rgba(100, 255, 218, 0.25); box-shadow: 0 0 15px rgba(100, 255, 218, 0.1); }
+    .sidebar-menus { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
+    .nav-link { color: #94A3B8 !important; padding: 12px 25px; margin: 0 15px 10px 0; border-radius: 0 25px 25px 0; font-weight: 500; transition: all 0.3s ease; display: flex; align-items: center; cursor: pointer; }
+    .nav-link i { width: 30px; font-size: 1.1rem; }
+    .nav-link:hover:not(:disabled) { color: #F8FAFC !important; background: rgba(255,255,255,0.05); transform: translateX(4px); }
+    .nav-link.active { background: linear-gradient(90deg, rgba(100,255,218,0.15) 0%, rgba(100,255,218,0) 100%); color: #64FFDA !important; border-left: 4px solid #64FFDA; }
+    .logout-container { padding: 20px 15px; background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255,255,255,0.05); }
+    .form-switch .form-check-input { width: 2.5em; height: 1.25em; cursor: pointer; }
+    .form-switch .form-check-input:checked { background-color: #198754; border-color: #198754; }
+    
+    /* Added style for the new Schedule Tabs */
+    .schedule-tabs .nav-link { color: #334155 !important; border-radius: 8px; margin-right: 10px; font-weight: 600; padding: 8px 16px; background: #F1F5F9; border: none; }
+    .schedule-tabs .nav-link.active { background: #0F172A !important; color: #FFFFFF !important; }
+
+    /* Perfectly aligns the footer with the main content, preventing sidebar overlap */
+    footer {
+        margin-left: 260px !important;
+        width: calc(100% - 260px) !important;
+    }
+</style>
+
+<div class="sidebar">
+    <div class="sidebar-profile">
+        <div class="profile-avatar"><i class="fas fa-user-md fa-2x text-success" style="color: #64FFDA !important;"></i></div>
+        <h5 class="text-white fw-bold mb-2">{{ doctor.name }}</h5>
+        <span class="badge border border-success text-success bg-success bg-opacity-10 rounded-pill px-3 py-1 fw-normal" style="font-size: 0.75rem;"><i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i> System Online</span>
+    </div>
+    
+    <div class="sidebar-menus">
+        <ul class="nav flex-column nav-pills" role="tablist">
+            <li class="nav-item"><button class="nav-link active w-100 text-start" data-bs-toggle="pill" data-bs-target="#tab-scan" id="nav-scan"><i class="fas fa-microscope"></i> Radiology Workspace</button></li>
+            <li class="nav-item"><button class="nav-link w-100 text-start" data-bs-toggle="pill" data-bs-target="#tab-scans"><i class="fas fa-file-image"></i> Patient Scans</button></li>
+            <li class="nav-item"><button class="nav-link w-100 text-start" data-bs-toggle="pill" data-bs-target="#tab-emr"><i class="fas fa-users"></i> Patient Registry</button></li>
+            <li class="nav-item"><button class="nav-link w-100 text-start" data-bs-toggle="pill" data-bs-target="#tab-apts"><i class="fas fa-calendar-check"></i> Shift Rotations</button></li>
+            <div class="px-4 py-2 mt-2 mb-1 small text-uppercase text-white-50 fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">External Modules</div>
+            <li class="nav-item"><button class="nav-link w-100 text-start" data-bs-toggle="pill" data-bs-target="#tab-labs"><i class="fas fa-flask"></i> Pathology / Labs</button></li>
+            <li class="nav-item"><button class="nav-link w-100 text-start" data-bs-toggle="pill" data-bs-target="#tab-rx"><i class="fas fa-pills"></i> E-Prescribing</button></li>
+            <li class="nav-item"><button class="nav-link w-100 text-start" data-bs-toggle="pill" data-bs-target="#tab-settings"><i class="fas fa-cog"></i> System Settings</button></li>
+        </ul>
+    </div>
+    <div class="logout-container"><a href="{{ url_for('logout') }}" class="btn btn-outline-danger w-100 fw-bold py-2"><i class="fas fa-lock me-2"></i> Secure Logout</a></div>
+</div>
+
+<div class="main-wrapper p-4">
+    <div class="tab-content">
+        
+        <div class="tab-pane fade show active" id="tab-scan">
+            <div class="workspace-header p-4 text-white mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="fw-bold mb-1">Pulmonology Control Center</h2>
+                        <p class="text-white-75 mb-0">Advanced Radiographic Analysis & Patient Demographic Logging</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success fs-6"><i class="fas fa-wifi me-2"></i>Diagnostic Core Synchronized</span><br>
+                        <small class="text-white-75">{{ doctor.specialty }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card p-4 mb-4 shadow-sm">
+                        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2"><i class="fas fa-microchip me-2"></i> Execute Matrix Analysis</h5>
+                        <form id="scanForm" method="POST" enctype="multipart/form-data">
+                            <h6 class="fw-bold text-secondary mt-3">1. Patient Demographics</h6>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-3"><input type="text" name="patient_id" class="form-control" placeholder="MRN (PT-01)" required></div>
+                                <div class="col-md-5"><input type="text" name="patient_name" class="form-control" placeholder="Full Name"></div>
+                                <div class="col-md-2"><input type="number" name="age" class="form-control" placeholder="Age"></div>
+                                <div class="col-md-2">
+                                    <select name="gender" class="form-select">
+                                        <option value="U">Select</option><option value="F">Female</option><option value="M">Male</option><option value="O">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <h6 class="fw-bold text-secondary mt-3">2. Clinical Vitals</h6>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-lungs text-info"></i></span>
+                                        <input type="number" name="spo2" class="form-control border-start-0" placeholder="SpO2 % (e.g. 96)">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-thermometer-half text-danger"></i></span>
+                                        <input type="number" step="0.1" name="temp" class="form-control border-start-0" placeholder="Temp °C (e.g. 37.5)">
+                                    </div>
+                                </div>
+                            </div>
+                            <h6 class="fw-bold text-secondary mt-3">3. Radiographic Source Fetching</h6>
+                            <div class="mb-4">
+                                <div class="alert alert-info small py-2 mb-2"><i class="fas fa-info-circle me-1"></i> System will auto-fetch the radiograph uploaded by the patient. Only use the manual override below if necessary.</div>
+                                <input type="file" name="xray_image" class="form-control">
+                            </div>
+                            <button type="submit" id="execBtn" class="btn btn-dark w-100 py-3 fw-bold fs-5 shadow-sm">Run Clinical Evaluation</button>
+                        </form>
+                        <div id="spinner" class="text-center mt-4 d-none">
+                            <i class="fas fa-circle-notch fa-spin fa-3x text-primary mb-2"></i>
+                            <h5 class="text-muted">Analyzing Pulmonary Topography...</h5>
+                        </div>
+                    </div>
+
+                    {% if result %}
+                    <div class="card p-4 border-start border-5 border-info shadow-sm mb-4">
+                        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                            <div>
+                                <h4 class="fw-bold m-0 {{ 'text-danger' if 'DETECTED' in result.diagnosis else 'text-success' }}">{{ result.diagnosis }}</h4>
+                                <small class="text-muted fw-bold">System Confidence Matrix: {{ result.confidence|round(2) }}%</small>
+                            </div>
+                            <div class="text-end text-muted small">
+                                <strong>Patient:</strong> {{ result.name }} ({{ result.age }}{{ result.gender }})<br>
+                            </div>
+                        </div>
+                        <h6 class="fw-bold text-primary">Clinical Impression:</h6>
+                        <p class="text-dark small mb-4">{{ result.impression }}</p>
+                        <div class="bg-light p-3 border rounded mb-4">
+                            <h6 class="fw-bold text-success"><i class="fas fa-home me-2"></i>Outpatient / Home Care Prescription:</h6>
+                            <p class="text-dark small mb-0" style="white-space: pre-line;">{{ result.home_prescription }}</p>
+                        </div>
+                        <div class="row g-3 mb-4 mt-2">
+                            <div class="col-6">
+                                <p class="small fw-bold text-center text-muted mb-1">Original PA View</p>
+                                <img src="{{ url_for('static', filename=result.orig_img) }}" class="img-fluid rounded border shadow-sm">
+                            </div>
+                            <div class="col-6">
+                                <p class="small fw-bold text-center text-muted mb-1">Spatial Mapping</p>
+                                <img src="{{ url_for('static', filename=result.heat_img) }}" class="img-fluid rounded border shadow-sm">
+                            </div>
+                        </div>
+                        <a href="{{ url_for('static', filename=result.pdf_link) }}" download class="btn btn-success w-100 py-3 fw-bold fs-5 shadow-sm"><i class="fas fa-file-pdf me-2"></i> Download Official Clinical Report</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card p-4 shadow-sm action-panel">
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-clipboard-list me-2"></i> Physician Actions</h5>
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-secondary small text-uppercase">Clinical Recommended Protocols</h6>
+                            <div class="bg-white p-3 border rounded small text-muted" style="white-space: pre-line;">
+                                {% if result %}{{ result.recommendations }}{% else %}System awaiting radiograph to generate tailored protocol guidelines.{% endif %}
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-secondary small text-uppercase">Schedule Next Appointment</h6>
+                            <form method="POST" class="bg-white p-3 border rounded">
+                                <div class="mb-2"><input type="text" name="patient_mrn" class="form-control form-control-sm" placeholder="Patient MRN" required></div>
+                                <div class="mb-2"><input type="date" name="followup_date" class="form-control form-control-sm" required></div>
+                                <div class="mb-3"><input type="time" name="followup_time" class="form-control form-control-sm" required></div>
+                                <button type="submit" name="schedule_followup" class="btn btn-sm btn-outline-primary w-100 fw-bold">Lock Schedule</button>
+                            </form>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-secondary small text-uppercase">Internal Shift Notes</h6>
+                            <textarea class="form-control form-control-sm" rows="4" placeholder="Type personal clinical notes here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-pane fade" id="tab-scans">
+            <div class="card p-4 shadow-sm border-start border-4 border-warning">
+                <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-layer-group text-warning me-2"></i> Radiographic Queue Network</h5>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    {% set has_pending = false %}
+                    {% for apt in appointments %}
+                        {% if apt.xray_path %}
+                            {% set has_pending = true %}
+                            <button type="button" class="btn btn-light border shadow-sm text-start hover-shadow transition-all" onclick="
+                                document.querySelector('input[name=\'patient_id\']').value = '{{ apt.patient_username }}';
+                                document.querySelector('input[name=\'patient_name\']').value = 'Network Verified';
+                                document.querySelector('input[name=\'patient_name\']').readOnly = true;
+                                var triggerEl = document.querySelector('#nav-scan');
+                                var tab = new bootstrap.Tab(triggerEl);
+                                tab.show();
+                            ">
+                                <span class="fw-bold text-primary">{{ apt.patient_username }}</span><br>
+                                {% if apt.scan_status == 'PENDING' %}
+                                    <small class="text-warning fw-bold"><i class="fas fa-hourglass-half me-1"></i> Awaiting Eval</small>
+                                {% else %}
+                                    <small class="text-success fw-bold"><i class="fas fa-check-double me-1"></i> Diagnosed by Doctor</small>
+                                {% endif %}
+                            </button>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not has_pending %}
+                        <span class="text-muted small fst-italic">No pending radiographs in the network queue.</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-apts">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card p-4 shadow-sm h-100">
+                        
+                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                            <h5 class="fw-bold mb-0">Clinic Roster & Ledgers</h5>
+                        </div>
+
+                        <!-- Schedule Navigation Tabs -->
+                        <ul class="nav nav-pills schedule-tabs mb-4" id="schedule-tabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="today-tab" data-bs-toggle="pill" data-bs-target="#roster-today" type="button" role="tab"><i class="fas fa-calendar-day me-1"></i> Today's Roster</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tomorrow-tab" data-bs-toggle="pill" data-bs-target="#roster-tomorrow" type="button" role="tab"><i class="fas fa-calendar-alt me-1"></i> Tomorrow's Roster</button>
+                            </li>
+                            <!-- NEW TAB: ALL UPCOMING -->
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="all-tab" data-bs-toggle="pill" data-bs-target="#roster-all" type="button" role="tab"><i class="fas fa-calendar-week me-1"></i> All Upcoming</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="schedule-tab-content">
+                            <!-- TODAY'S ROSTER -->
+                            <div class="tab-pane fade show active" id="roster-today" role="tabpanel">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light"><tr><th>Date & Slot</th><th>Patient Details</th><th>Current Status</th><th>Authorization</th></tr></thead>
+                                    <tbody>
+                                        {% for apt in today_appointments %}
+                                        <tr>
+                                            <td class="fw-bold">{{ apt.date }} <br><span class="text-primary small">{{ apt.time_slot }}</span></td>
+                                            <td>{{ apt.patient_username }}</td>
+                                            <td><span class="badge bg-success">Confirmed</span></td>
+                                            <td>
+                                                <span class="badge bg-light text-success border border-success fw-bold p-2"><i class="fas fa-lock me-1"></i> Auto-Locked</span>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr><td colspan="4" class="text-center text-muted fst-italic py-3">No appointments scheduled for today.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- TOMORROW'S ROSTER -->
+                            <div class="tab-pane fade" id="roster-tomorrow" role="tabpanel">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light"><tr><th>Date & Slot</th><th>Patient Details</th><th>Current Status</th><th>Authorization</th></tr></thead>
+                                    <tbody>
+                                        {% for apt in tomorrow_appointments %}
+                                        <tr>
+                                            <td class="fw-bold">{{ apt.date }} <br><span class="text-primary small">{{ apt.time_slot }}</span></td>
+                                            <td>{{ apt.patient_username }}</td>
+                                            <td><span class="badge bg-success">Confirmed</span></td>
+                                            <td>
+                                                <span class="badge bg-light text-success border border-success fw-bold p-2"><i class="fas fa-lock me-1"></i> Auto-Locked</span>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr><td colspan="4" class="text-center text-muted fst-italic py-3">No appointments scheduled for tomorrow.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- NEW: ALL UPCOMING ROSTER -->
+                            <div class="tab-pane fade" id="roster-all" role="tabpanel">
+                                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light" style="position: sticky; top: 0; z-index: 1;"><tr><th>Date & Slot</th><th>Patient Details</th><th>Current Status</th><th>Authorization</th></tr></thead>
+                                        <tbody>
+                                            {% for apt in appointments %}
+                                            <tr>
+                                                <td class="fw-bold">{{ apt.date }} <br><span class="text-primary small">{{ apt.time_slot }}</span></td>
+                                                <td>{{ apt.patient_username }}</td>
+                                                <td><span class="badge bg-success">Confirmed</span></td>
+                                                <td>
+                                                    <span class="badge bg-light text-success border border-success fw-bold p-2"><i class="fas fa-lock me-1"></i> Auto-Locked</span>
+                                                </td>
+                                            </tr>
+                                            {% else %}
+                                            <tr><td colspan="4" class="text-center text-muted fst-italic py-3">No appointments scheduled in the master ledger.</td></tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card p-4 shadow-sm border-start border-4 border-danger h-100">
+                        <h5 class="fw-bold text-danger border-bottom pb-2 mb-3"><i class="fas fa-calendar-times me-2"></i> Leave Management</h5>
+                        <p class="small text-muted">Mark yourself as unavailable to block patient bookings.</p>
+                        
+                        <form method="POST">
+                            <div class="mb-2"><input type="date" name="leave_date" class="form-control" required></div>
+                            <div class="mb-3">
+                                <select name="leave_shift" class="form-select form-select-sm" required>
+                                    <option value="Full Day">Full Day</option>
+                                    <option value="Morning">Morning (9 AM - 12 PM)</option>
+                                    <option value="Afternoon">Afternoon (12 PM - 4 PM)</option>
+                                    <option value="Evening">Evening (4 PM - 6 PM)</option>
+                                </select>
+                            </div>
+                            <button type="submit" name="mark_leave" class="btn btn-danger w-100 fw-bold"><i class="fas fa-ban me-1"></i> Mark Unavailable</button>
+                        </form>
+                        
+                        <h6 class="fw-bold mt-4 mb-2 small text-uppercase">Scheduled Leaves:</h6>
+                        <ul class="list-group list-group-flush small">
+                            {% for leave in leaves %}
+                            <li class="list-group-item px-0 text-muted"><i class="fas fa-plane-departure me-2"></i> {{ leave.leave_date }} <strong>({{ leave.shift }})</strong></li>
+                            {% else %}
+                            <li class="list-group-item px-0 text-muted fst-italic">No leaves scheduled.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-emr">
+            <div class="card p-4 shadow-sm">
+                <h5 class="fw-bold border-bottom pb-2 mb-3">My Personal Patient Registry</h5>
+                <table class="table table-sm table-striped align-middle">
+                    <thead class="table-light"><tr><th>Timestamp</th><th>MRN / Name</th><th>Vitals (SpO2/Temp)</th><th>Diagnosis Matrix</th><th>Action</th></tr></thead>
+                    <tbody>
+                        {% for pat in patients %}
+                        <tr>
+                            <td>{{ pat.timestamp }}</td>
+                            <td><strong>{{ pat.patient_id }}</strong><br><small class="text-muted">{{ pat.name }} ({{ pat.age }}{{ pat.sex }})</small></td>
+                            <td>{{ pat.spo2 }}% | {{ pat.temp }}°C</td>
+                            <td class="fw-bold {{ 'text-danger' if 'DETECTED' in pat.diagnosis else 'text-success' }}">{{ pat.diagnosis }}</td>
+                            <td>
+                                <!-- Existing Delete Button -->
+                                <form method="POST" style="display:inline;" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete this patient record from the EMR?');">
+                                    <input type="hidden" name="record_timestamp" value="{{ pat.timestamp }}">
+                                    <input type="hidden" name="del_patient_id" value="{{ pat.patient_id }}">
+                                    <button type="submit" name="delete_record" class="btn btn-sm btn-outline-danger" title="Delete Record">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                                
+                                <!-- Professional Invoice Generation Button -->
+                                <form method="POST" style="display:inline;">
+                                    <input type="hidden" name="bill_pat_id" value="{{ pat.patient_id }}">
+                                    <button type="submit" name="generate_bill" class="btn btn-sm btn-outline-success ms-1 fw-bold shadow-sm" title="Generate Invoice">
+                                        <i class="fas fa-file-invoice-dollar me-1"></i> Bill
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-labs">
+            <div class="card p-4 shadow-sm border-start border-5 border-primary">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                    <h5 class="fw-bold m-0"><i class="fas fa-flask text-primary me-2"></i> Clinical Pathology & Laboratory Integrations</h5>
+                    <span class="badge bg-primary">HL7 Network Active</span>
+                </div>
+                <div class="alert alert-secondary small"><i class="fas fa-info-circle me-2"></i> <strong>Simulation Mode:</strong> Displaying recent external lab results broadcasted from the Aura Health Biochemistry Wing.</div>
+                <table class="table table-hover align-middle mt-3">
+                    <thead class="table-light"><tr><th>Patient MRN</th><th>Test Type</th><th>Result Date</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                        <tr><td class="fw-bold">PT-7265</td><td>Complete Blood Count (CBC)</td><td>Today, 08:30 AM</td><td><span class="badge bg-danger">Critical - High WBC</span></td><td><button class="btn btn-sm btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#cbcModal">View Report</button></td></tr>
+                        <tr><td class="fw-bold">PT-9092</td><td>Sputum Culture & Gram Stain</td><td>Yesterday</td><td><span class="badge bg-success">Normal Flora</span></td><td><button class="btn btn-sm btn-outline-secondary" disabled>Archived</button></td></tr>
+                        <tr><td class="fw-bold">PT-3341</td><td>Arterial Blood Gas (ABG)</td><td>Today, 11:15 AM</td><td><span class="badge bg-warning text-dark">Hypoxemia Alert</span></td><td><button class="btn btn-sm btn-outline-secondary" disabled>Processing...</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal fade" id="cbcModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title fw-bold"><i class="fas fa-microscope me-2"></i> Complete Blood Count (CBC) Panel</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="row border-bottom pb-3 mb-3 small">
+                            <div class="col-6"><strong>Patient MRN:</strong> PT-7265<br><strong>Collected:</strong> Today, 07:15 AM</div>
+                            <div class="col-6 text-end"><strong>Requesting Dept:</strong> Pulmonology<br><strong>Lab Status:</strong> <span class="text-danger fw-bold">FINAL - CRITICAL</span></div>
+                        </div>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light"><tr><th>Biomarker</th><th>Result</th><th>Reference Range</th><th>Flag</th></tr></thead>
+                            <tbody>
+                                <tr><td>White Blood Cells (WBC)</td><td class="text-danger fw-bold">18.5 x10^3/uL</td><td class="text-muted">4.5 - 11.0 x10^3/uL</td><td><span class="badge bg-danger">HIGH</span></td></tr>
+                                <tr><td>Red Blood Cells (RBC)</td><td>4.8 x10^6/uL</td><td class="text-muted">4.5 - 5.9 x10^6/uL</td><td>Normal</td></tr>
+                                <tr><td>Hemoglobin (Hgb)</td><td>14.2 g/dL</td><td class="text-muted">13.5 - 17.5 g/dL</td><td>Normal</td></tr>
+                                <tr><td>Hematocrit (Hct)</td><td>42.5 %</td><td class="text-muted">41.0 - 50.0 %</td><td>Normal</td></tr>
+                                <tr><td>Platelets</td><td>210 x10^3/uL</td><td class="text-muted">150 - 450 x10^3/uL</td><td>Normal</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="alert alert-warning mt-3 small"><strong><i class="fas fa-exclamation-circle me-1"></i> Pathologist Note:</strong> Marked leukocytosis present. Elevated WBC count strongly correlates with acute systemic infection.</div>
+                    </div>
+                    <div class="modal-footer bg-light"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close File</button></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-rx">
+            <div class="card p-4 shadow-sm border-start border-5 border-success">
+                <h5 class="fw-bold border-bottom pb-2 mb-4"><i class="fas fa-pills text-success me-2"></i> Electronic Pharmacy Routing</h5>
+                <div class="row">
+                    <div class="col-md-7">
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Patient MRN</label>
+                                <input type="text" name="rx_patient_mrn" class="form-control" required placeholder="Search MRN...">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Medication Database</label>
+                                <select name="rx_medication" class="form-select" required>
+                                    <option value="" disabled selected>Select from Formulary...</option>
+                                    <option value="Azithromycin (Zithromax) - 500mg IV">Azithromycin (Zithromax) - 500mg IV</option>
+                                    <option value="Levofloxacin (Levaquin) - 750mg Oral">Levofloxacin (Levaquin) - 750mg Oral</option>
+                                    <option value="Amoxicillin/Clavulanate (Augmentin) - 875mg">Amoxicillin/Clavulanate (Augmentin) - 875mg</option>
+                                    <option value="Albuterol Sulfate Inhalation Solution - 0.083%">Albuterol Sulfate Inhalation Solution - 0.083%</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Dosing Instructions (Sig)</label>
+                                <input type="text" name="rx_instructions" class="form-control" required placeholder="e.g., Take 1 tablet by mouth daily for 5 days">
+                            </div>
+                            <button type="submit" name="transmit_rx" class="btn btn-success fw-bold w-100">
+                                <i class="fas fa-paper-plane me-2"></i> Transmit & Generate Official Prescription
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="bg-light p-4 rounded h-100 border text-center d-flex flex-column justify-content-center">
+                            <i class="fas fa-shield-alt fa-3x mb-3 text-success opacity-75"></i>
+                            <h6 class="fw-bold text-dark">DEA Compliant Routing Active</h6>
+                            <p class="small text-muted mt-2 mb-0">All electronic prescriptions are monitored and logged within the state PDMP registry via HL7 encrypted channels.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-settings">
+            <div class="card p-4 shadow-sm border-start border-5 border-dark">
+                <h5 class="fw-bold border-bottom pb-2 mb-4"><i class="fas fa-cog text-dark me-2"></i> Physician Interface Configurations</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary mb-3">Security & Alerts</h6>
+                        <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="tfa" checked><label class="form-check-label ms-2" for="tfa"><strong>Two-Factor Authentication (2FA)</strong><br><span class="small text-muted">Require SMS code for portal access.</span></label></div>
+                        <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="alerts" checked><label class="form-check-label ms-2" for="alerts"><strong>Critical Vitals SMS Alerts</strong><br><span class="small text-muted">Page on-call doctor if SpO2 drops < 90%.</span></label></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary mb-3">AI & Automation</h6>
+                        <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="autopdf" checked><label class="form-check-label ms-2" for="autopdf"><strong>Auto-Generate EMR PDFs</strong><br><span class="small text-muted">Compile report immediately after matrix analysis.</span></label></div>
+                        <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="darkmode"><label class="form-check-label ms-2" for="darkmode"><strong>UI Dark Mode</strong><br><span class="small text-muted">Switch interface for low-light environments.</span></label></div>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-top text-end">
+                    <button class="btn btn-dark fw-bold px-4 transition-all" id="saveSettingsBtn" onclick="let btn = this; btn.innerHTML = '<i class=\'fas fa-check me-2\'></i>Matrices Saved'; btn.classList.replace('btn-dark', 'btn-success'); setTimeout(() => { btn.innerHTML = 'Save Configurations'; btn.classList.replace('btn-success', 'btn-dark'); }, 2500);">Save Configurations</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('scanForm').onsubmit = function() {
+        document.getElementById('execBtn').disabled = true;
+        document.getElementById('spinner').classList.remove('d-none');
+    };
+</script>
+{% endblock %}
