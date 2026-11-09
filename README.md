@@ -27,7 +27,7 @@ This enterprise-grade system bridges the gap between machine learning and daily 
 
 | Patient Portal | Automated Reports |
 | :---: | :---: |
-| <img src="assets/patient.png" width="400"/> | *(Upload a screenshot of your PDF invoice or report here, name it report.png, and it will appear automatically)* |
+| <img src="assets/patient.png" width="400"/> | <img src="assets/report.png" width="400"/> |
 | **Patient EMR Access** | **Dynamic EMR & Billing Generation** |
 
 ## 🚀 Core Features
